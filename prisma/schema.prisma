@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+
+  student   Student?
+
+  createdAt DateTime @default(now())
+}
+
+model Student {
+  id        String   @id @default(uuid())
+
+  hallTicket String  @unique
+
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+
+  subjects  StudentSubject[]
+  allocations Allocation[]
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String
+
+  students  StudentSubject[]
+  allocations Allocation[]
+}
+
+model StudentSubject {
+  id        String  @id @default(uuid())
+
+  studentId String
+  subjectId String
+
+  student   Student @relation(fields: [studentId], references: [id])
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, subjectId])
+}
+
+enum Session {
+  AM
+  PM
+}
+
+model ExamSlot {
+  id        String   @id @default(uuid())
+  date      DateTime
+  startTime String
+  endTime   String
+  session   Session
+
+  allocations Allocation[]
+}
+model Room {
+  id        String   @id @default(uuid())
+  name      String
+  capacity  Int
+
+  allocations Allocation[]
+}
+
+model Allocation {
+  id        String   @id @default(uuid())
+
+  studentId String
+  subjectId String
+  slotId    String
+  roomId    String
+
+  student Student @relation(fields: [studentId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+  slot    ExamSlot @relation(fields: [slotId], references: [id])
+  room    Room     @relation(fields: [roomId], references: [id])
+}
+
+
+enum Role {
+  ADMIN
+  STUDENT
+}
