@@ -9,7 +9,10 @@ import sRoutes from "./routes/student.routes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.CLIENT_URL || true,
+  credentials: true,
+}));
 app.use(express.json());
 
 app.use("/api/allocation", allocationRoutes);
